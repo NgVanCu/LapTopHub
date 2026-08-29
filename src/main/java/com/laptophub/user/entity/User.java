@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.Objects;
 
 @Entity
@@ -37,6 +38,12 @@ public class User extends BaseEntity {
     @Column(name = "status", nullable = false, length = 20)
     private UserStatus status;
 
+    @Column(name = "email_verification_token_hash", length = 64, unique = true)
+    private String emailVerificationTokenHash;
+
+    @Column(name = "email_verification_expires_at")
+    private Instant emailVerificationExpiresAt;
+
     private User(String email, String passwordHash, String fullName, String phone, UserRole role) {
         this.email = Objects.requireNonNull(email, "Email không được để trống");
         this.password = Objects.requireNonNull(passwordHash, "Mật khẩu không được để trống");
@@ -48,6 +55,17 @@ public class User extends BaseEntity {
 
     public static User create(String email, String passwordHash, String fullName, String phone, UserRole role) {
         return new User(email, passwordHash, fullName, phone, role);
+    }
+
+    public static User createPendingVerification(String email, String passwordHash, String fullName, String phone,
+                                                 String emailVerificationTokenHash, Instant emailVerificationExpiresAt) {
+        User user = new User(email, passwordHash, fullName, phone, UserRole.CUSTOMER);
+        user.status = UserStatus.PENDING_VERIFICATION;
+        user.emailVerificationTokenHash =
+                Objects.requireNonNull(emailVerificationTokenHash,  "Mã xác thực email không được để trống");
+        user.emailVerificationExpiresAt =
+                Objects.requireNonNull(emailVerificationExpiresAt, "Thời gian hết hạn mã xác thực email không được để trống");
+        return user;
     }
 
     public void activate() {
@@ -68,5 +86,12 @@ public class User extends BaseEntity {
     public void updateProfile(String fullName, String phone) {
         this.fullName = Objects.requireNonNull(fullName, "Họ và tên không được để trống");
         this.phone = phone;
+    }
+
+    public void reissueEmailVerificationToken(String emailVerificationTokenHash, Instant emailVerificationExpiresAt) {
+        this.emailVerificationTokenHash =
+                Objects.requireNonNull(emailVerificationTokenHash,  "Mã xác thực email không được để trống");
+        this.emailVerificationExpiresAt =
+                Objects.requireNonNull(emailVerificationExpiresAt, "Thời gian hết hạn mã xác thực email không được để trống");
     }
 }
