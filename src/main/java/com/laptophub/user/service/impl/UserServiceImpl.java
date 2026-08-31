@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.verifyEmailIfPending(userId);
     }
 
+    @Override
     public Optional<User> findByNormalizedEmail(String normalizedEmail) {
         return userRepository.findByEmail(normalizedEmail);
     }
@@ -58,5 +59,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
         user.reissueEmailVerificationToken(emailVerificationTokenHash, emailVerificationExpiresAt);
         return userRepository.saveAndFlush(user);
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
 }

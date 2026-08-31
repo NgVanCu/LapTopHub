@@ -56,6 +56,10 @@ app:
     password: ${ADMIN_PASSWORD}
   base-url: ${APP_BASE_URL:http://localhost:8080}
 
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-token-expiration: ${JWT_ACCESS_EXPIRATION:15m}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:30d}
 
 logging:
   level:

@@ -17,4 +17,5 @@ public interface UserService {
 
     User reissueEmailVerificationToken(Long userId, String emailVerificationTokenHash,
                                        Instant emailVerificationExpiresAt);
+    Optional<User> findById(Long id);
 }

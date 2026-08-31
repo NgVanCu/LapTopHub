@@ -1,29 +1,46 @@
 package com.laptophub.auth.controller;
 
-import com.laptophub.auth.dto.request.RegisterRequest;
-import com.laptophub.auth.dto.request.ResendVerificationEmailRequest;
-import com.laptophub.auth.dto.request.VerifyEmailRequest;
+import com.laptophub.auth.dto.request.*;
+import com.laptophub.auth.dto.response.LoginResponse;
+import com.laptophub.auth.dto.response.LoginResult;
 import com.laptophub.auth.dto.response.RegisterResponse;
-import com.laptophub.auth.service.EmailVerificationService;
-import com.laptophub.auth.service.RegisterService;
+import com.laptophub.auth.entity.RevokeReason;
+import com.laptophub.auth.service.*;
+import com.laptophub.auth.token.RefreshTokenCookieFactory;
+import com.laptophub.security.service.UserPrincipal;
+import com.laptophub.shared.exception.AppException;
+import com.laptophub.shared.exception.ErrorCode;
 import com.laptophub.shared.response.ApiResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
     private final RegisterService registerService;
     private final EmailVerificationService emailVerificationService;
-
-    public AuthController(RegisterService registerService, EmailVerificationService emailVerificationService) {
+    private final LoginService loginService;
+    private final RefreshTokenCookieFactory refreshTokenCookieFactory;
+    private final LogoutService logoutService;
+    private final ChangePasswordService changePasswordService;
+    private final RefreshService refreshService;
+    public AuthController(RegisterService registerService, EmailVerificationService emailVerificationService,
+                          LoginService loginService, RefreshTokenCookieFactory refreshTokenCookieFactory,
+                          LogoutService logoutService,ChangePasswordService changePasswordService,
+                          RefreshService refreshService) {
         this.registerService = registerService;
         this.emailVerificationService = emailVerificationService;
+        this.loginService = loginService;
+        this.refreshTokenCookieFactory =  refreshTokenCookieFactory;
+        this.logoutService = logoutService;
+        this.changePasswordService = changePasswordService;
+        this.refreshService = refreshService;
     }
 
     @PostMapping("/register")
@@ -44,5 +61,45 @@ public class AuthController {
         emailVerificationService.resend(request.email());
         return ResponseEntity.ok(ApiResponse.success(
                 "Nếu email tồn tại và chưa xác thực, email xác thực mới đã được gửi", null));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResult>> login(@Valid @RequestBody LoginRequest request,
+                                                          HttpServletResponse httpResponse) {
+        LoginResponse response = loginService.login(request);
+        httpResponse.addHeader(HttpHeaders.SET_COOKIE,
+                refreshTokenCookieFactory.build(response.rawRefreshToken()).toString());
+        return ResponseEntity.ok(ApiResponse.success("Đăng nhập thành công!",  response.result()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse httpResponse,
+                                                    @AuthenticationPrincipal Jwt jwt) {
+        Long userId = jwt.getClaim("userId");
+        logoutService.logout(userId, RevokeReason.LOGOUT);
+        httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookieFactory.clear().toString());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request,
+                                                            @AuthenticationPrincipal Jwt jwt) {
+        Long userId = jwt.getClaim("userId");
+        changePasswordService.changePassword(userId, request);
+        return ResponseEntity.ok(ApiResponse.success("Đổi mật khẩu thành công", null));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<LoginResult>> refresh(
+            @CookieValue(name = RefreshTokenCookieFactory.COOKIE_NAME, required = false) String rawRefreshToken,
+            HttpServletResponse httpResponse) {
+        if (rawRefreshToken == null || rawRefreshToken.isBlank()) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        LoginResponse result = refreshService.refresh(rawRefreshToken);
+        httpResponse.addHeader(HttpHeaders.SET_COOKIE,
+                refreshTokenCookieFactory.build(result.rawRefreshToken()).toString());
+        return ResponseEntity.ok(ApiResponse.success("Ok",result.result()));
     }
 }
