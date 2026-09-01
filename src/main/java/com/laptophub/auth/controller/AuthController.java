@@ -7,7 +7,7 @@ import com.laptophub.auth.dto.response.RegisterResponse;
 import com.laptophub.auth.entity.RevokeReason;
 import com.laptophub.auth.service.*;
 import com.laptophub.auth.token.RefreshTokenCookieFactory;
-import com.laptophub.security.service.UserPrincipal;
+import com.laptophub.security.currentuser.CurrentUserProvider;
 import com.laptophub.shared.exception.AppException;
 import com.laptophub.shared.exception.ErrorCode;
 import com.laptophub.shared.response.ApiResponse;
@@ -30,10 +30,11 @@ public class AuthController {
     private final LogoutService logoutService;
     private final ChangePasswordService changePasswordService;
     private final RefreshService refreshService;
+    private final CurrentUserProvider currentUserProvider;
     public AuthController(RegisterService registerService, EmailVerificationService emailVerificationService,
                           LoginService loginService, RefreshTokenCookieFactory refreshTokenCookieFactory,
                           LogoutService logoutService,ChangePasswordService changePasswordService,
-                          RefreshService refreshService) {
+                          RefreshService refreshService,CurrentUserProvider currentUserProvider) {
         this.registerService = registerService;
         this.emailVerificationService = emailVerificationService;
         this.loginService = loginService;
@@ -41,6 +42,7 @@ public class AuthController {
         this.logoutService = logoutService;
         this.changePasswordService = changePasswordService;
         this.refreshService = refreshService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @PostMapping("/register")
@@ -73,18 +75,16 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse httpResponse,
-                                                    @AuthenticationPrincipal Jwt jwt) {
-        Long userId = jwt.getClaim("userId");
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse httpResponse) {
+        Long userId = currentUserProvider.getCurrentUser().userId();
         logoutService.logout(userId, RevokeReason.LOGOUT);
         httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookieFactory.clear().toString());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request,
-                                                            @AuthenticationPrincipal Jwt jwt) {
-        Long userId = jwt.getClaim("userId");
+    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        Long userId = currentUserProvider.getCurrentUser().userId();
         changePasswordService.changePassword(userId, request);
         return ResponseEntity.ok(ApiResponse.success("Đổi mật khẩu thành công", null));
     }

@@ -3,13 +3,18 @@ package com.laptophub.user.service.impl;
 import com.laptophub.shared.exception.AppException;
 import com.laptophub.shared.exception.ErrorCode;
 import com.laptophub.user.entity.User;
+import com.laptophub.user.enums.UserRole;
+import com.laptophub.user.enums.UserStatus;
 import com.laptophub.user.repository.UserRepository;
 import com.laptophub.user.service.UserService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -64,5 +69,47 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public User updateProfile(Long userId, String fullName, String phone){
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+        user.updateProfile(fullName, phone);
+        return user;
+    }
+
+    @Override
+    public Page<User> search(UserRole role, UserStatus status, String keyword, Pageable pageable) {
+        return userRepository.search(role, status, keyword, pageable);
+    }
+
+    @Override
+    @Transactional
+    public User blockUser(Long actingAdminId, Long targetUserId) {
+        if (Objects.equals(actingAdminId, targetUserId)) {
+            throw new AppException(ErrorCode.VALIDATION_ERROR);
+        }
+        User user = userRepository.findById(targetUserId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+        user.block();
+        return user;
+    }
+
+    @Override
+    @Transactional
+    public User activateUser(Long targetUserId) {
+        User user = userRepository.findById(targetUserId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+        if (user.getStatus() == UserStatus.PENDING_VERIFICATION) {
+            throw new AppException(ErrorCode.VALIDATION_ERROR);
+        }
+        user.activate();
+        return user;
+    }
+
+    @Override
+    @Transactional
+    public User createAdmin(String normalizedEmail, String passwordHash, String fullName) {
+        User user = User.create(normalizedEmail, passwordHash, fullName, null, UserRole.ADMIN);
+        return userRepository.saveAndFlush(user);
     }
 }

@@ -40,6 +40,7 @@ public class RefreshServiceImpl implements RefreshService {
 
     @Override
     @Transactional(noRollbackFor = AppException.class)
+    // ý nghĩa của transactional này là nếu gặp lỗi business thì nó kh roll back
     public LoginResponse refresh(String rawRefreshToken) {
         String refreshTokenHash = HashToken.hash(rawRefreshToken);
 
