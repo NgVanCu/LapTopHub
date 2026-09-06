@@ -43,11 +43,21 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->auth
-                        .requestMatchers(POST, "/auth/register", "/auth/login", "/auth/refresh",
-                                "/auth/verify-email", "/auth/resend-verification-email").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                POST,
+                                "/auth/register",
+                                "/auth/login",
+                                "/auth/refresh",
+                                "/auth/verify-email",
+                                "/auth/resend-verification-email"
+                        ).permitAll()
+
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
+
+                        .requestMatchers("/storage/images/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))

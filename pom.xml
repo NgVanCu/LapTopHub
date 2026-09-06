@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -29,6 +29,21 @@
 	<properties>
 		<java.version>25</java.version>
 	</properties>
+
+	<!-- Ép version cho các dependency transitive bị lỗi/xung đột.
+	     Không thêm okhttp vào <dependencies> vì project không dùng nó trực tiếp,
+	     chỉ minio-java cần nó. dependencyManagement chỉ "khóa version"
+	     cho bất kỳ ai kéo okhttp về, không thêm nó vào classpath một cách tường minh. -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp</artifactId>
+				<version>4.12.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -66,6 +81,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>9.0.3</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<dependency>

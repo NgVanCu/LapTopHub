@@ -27,7 +27,11 @@ public enum ErrorCode {
     EMAIL_VERIFICATION_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "Token xác thực không hợp lệ"),
     EMAIL_VERIFICATION_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "Token xác thực đã hết hạn"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi hệ thống"),
-    FILE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE,"File vượt quá kích thước cho phép");
+    FILE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE,"File vượt quá kích thước cho phép"),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "Định dạng file không được hỗ trợ"),
+    INVALID_OBJECT_KEY(HttpStatus.BAD_REQUEST, "Đường dẫn file không hợp lệ"),
+    STORAGE_OBJECT_NOT_FOUND(HttpStatus.NOT_FOUND, "File chưa được upload hoặc đã hết hạn"),
+    STORAGE_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Không thể xử lý file lúc này, vui lòng thử lại");
 
     private final HttpStatus httpStatus;
     private final String defaultMessage;
