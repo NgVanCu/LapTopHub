@@ -83,11 +83,8 @@ public class BrandServiceImpl implements BrandService {
             Long id,
             BrandUpdateRequest request
     ) {
-
-        // 1. Lấy Brand hiện tại
         Brand brand = getEntityByIdOrThrow(id);
 
-        // 2. Xử lý slug
         String slug = resolveSlug(
                 request.slug(),
                 request.name()
@@ -97,28 +94,20 @@ public class BrandServiceImpl implements BrandService {
             throw new AppException(ErrorCode.RESOURCE_CONFLICT);
         }
 
-        // 3. Lưu logo cũ
         String oldLogoKey = brand.getLogoKey();
-
-        // Mặc định giữ nguyên logo cũ
         String newLogoKey = oldLogoKey;
 
-        // 4. Nếu user upload logo mới
         if (request.logoKey() != null
                 && !request.logoKey().isBlank()
                 && !request.logoKey().equals(oldLogoKey)) {
 
-            newLogoKey =
-                    imageStorageService.confirmUpload(
-                            ImagePurpose.BRAND_LOGO,
-                            brand.getId(),
-                            new ConfirmUploadRequest(
-                                    request.logoKey()
-                            )
-                    );
+            newLogoKey = imageStorageService.confirmUpload(
+                    ImagePurpose.BRAND_LOGO,
+                    brand.getId(),
+                    new ConfirmUploadRequest(request.logoKey())
+            );
         }
 
-        // 5. Update Brand
         brand.update(
                 request.name(),
                 slug,
@@ -126,19 +115,10 @@ public class BrandServiceImpl implements BrandService {
                 newLogoKey
         );
 
-        // 6. Nếu logo đã thay đổi → xóa logo cũ
-        if (oldLogoKey != null
-                && !oldLogoKey.isBlank()
-                && !oldLogoKey.equals(newLogoKey)) {
-
-            imageStorageService.delete(oldLogoKey);
-        }
-
         return toResponse(brand);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BrandResponse getByIdOrThrow(Long id) {
 
         Brand brand = getEntityByIdOrThrow(id);
@@ -147,7 +127,6 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<BrandResponse> list(Pageable pageable) {
 
         Page<Brand> brandPage =
@@ -157,7 +136,6 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BrandResponse> listActive() {
 
         return brandRepository
