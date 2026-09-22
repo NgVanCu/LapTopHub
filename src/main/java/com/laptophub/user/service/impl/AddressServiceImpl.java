@@ -22,16 +22,17 @@ public class AddressServiceImpl implements AddressService {
         this.addressRepository = addressRepository;
         this.currentUserProvider = currentUserProvider;
     }
-
+    @Override
     public List<Address> list() {
         return addressRepository.findByUserIdOrderByIsDefaultDescCreatedAtDesc(currentUserProvider.getCurrentUser().userId());
     }
-
+    @Override
     public Address getOwned(Long addressId) {
         return addressRepository.findByIdAndUserId(addressId, currentUserProvider.getCurrentUser().userId())
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
     }
 
+    @Override
     @Transactional
     public Address create(AddressCreateRequest request) {
         Long userId = currentUserProvider.getCurrentUser().userId();
@@ -45,7 +46,7 @@ public class AddressServiceImpl implements AddressService {
                  request.ward(), request.streetAddress(), shouldBeDefault);
         return addressRepository.save(address);
     }
-
+    @Override
     @Transactional
     public Address update(Long addressId, AddressUpdateRequest request) {
         Address address = getOwned(addressId);
@@ -54,12 +55,14 @@ public class AddressServiceImpl implements AddressService {
         return address;
     }
 
+    @Override
     @Transactional
     public void delete(Long addressId) {
         Address address = getOwned(addressId);
         addressRepository.delete(address);
     }
 
+    @Override
     @Transactional
     public Address setDefault(Long addressId) {
         Long userId =  currentUserProvider.getCurrentUser().userId();

@@ -30,6 +30,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         this.emailService = emailService;
     }
 
+    @Override
     @Transactional
     public void verify(String rawToken) {
         String tokenHash = HashToken.hash(rawToken);
@@ -54,6 +55,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         }
     }
 
+    @Override
     @Transactional
     public void resend(String rawEmail) {
         String normalizedEmail = EmailNormalizer.normalize(rawEmail);

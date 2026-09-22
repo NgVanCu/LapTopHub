@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BrandService {
     BrandResponse create(BrandCreateRequest request);
@@ -23,4 +24,8 @@ public interface BrandService {
     BrandResponse activate(Long id);
 
     BrandResponse deactivate(Long id);
+
+    Map<Long, String> findNamesByIds(List<Long> ids);
+
+    Brand getById(Long id);
 }

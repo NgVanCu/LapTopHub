@@ -14,6 +14,7 @@ import java.util.Objects;
 @Table(name = "specifications")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+//dùng để định nghĩa các loại thông số kỹ thuật của sản phẩm
 public class SpecificationDefinition extends BaseEntity {
     @Column(name = "category_id")
     private Long categoryId;

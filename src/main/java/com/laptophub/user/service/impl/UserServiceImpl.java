@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmailVerificationTokenHash(emailVerificationTokenHash);
     }
 
+    @Override
     @Transactional
     public int verifyEmailIfPending(Long userId) {
         return userRepository.verifyEmailIfPending(userId);
@@ -58,6 +59,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(normalizedEmail);
     }
 
+    @Override
     @Transactional
     public User reissueEmailVerificationToken(Long userId, String emailVerificationTokenHash,
                                               Instant emailVerificationExpiresAt) {

@@ -7,6 +7,7 @@ import com.laptophub.brand.entity.Brand;
 import com.laptophub.brand.enums.BrandStatus;
 import com.laptophub.brand.repository.BrandRepository;
 import com.laptophub.brand.service.BrandService;
+import com.laptophub.product.service.ProductCacheService;
 import com.laptophub.shared.exception.AppException;
 import com.laptophub.shared.exception.ErrorCode;
 import com.laptophub.shared.util.SlugUtil;
@@ -19,19 +20,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
     private final ImageStorageService imageStorageService;
-
+    private final ProductCacheService productCacheService;
     public BrandServiceImpl(
             BrandRepository brandRepository,
-            ImageStorageService imageStorageService
+            ImageStorageService imageStorageService,
+            ProductCacheService productCacheService
     ) {
         this.brandRepository = brandRepository;
         this.imageStorageService = imageStorageService;
+        this.productCacheService = productCacheService;
     }
 
     @Override
@@ -44,7 +49,7 @@ public class BrandServiceImpl implements BrandService {
         );
 
         if (brandRepository.existsBySlug(slug)) {
-            throw new AppException(ErrorCode.RESOURCE_CONFLICT);
+            throw new AppException(ErrorCode.RESOURCE_CONFLICT, "Slug đã tồn tại");
         }
 
         // 1. Tạo Brand trước để có brandId
@@ -91,7 +96,7 @@ public class BrandServiceImpl implements BrandService {
         );
 
         if (brandRepository.existsBySlugAndIdNot(slug, id)) {
-            throw new AppException(ErrorCode.RESOURCE_CONFLICT);
+            throw new AppException(ErrorCode.RESOURCE_CONFLICT, "Slug đã tồn tại");
         }
 
         String oldLogoKey = brand.getLogoKey();
@@ -114,7 +119,8 @@ public class BrandServiceImpl implements BrandService {
                 request.description(),
                 newLogoKey
         );
-
+        productCacheService.evictAllProductDetail();
+        productCacheService.evictProductSearch();
         return toResponse(brand);
     }
 
@@ -152,7 +158,8 @@ public class BrandServiceImpl implements BrandService {
         Brand brand = getEntityByIdOrThrow(id);
 
         brand.activate();
-
+        productCacheService.evictAllProductDetail();
+        productCacheService.evictProductSearch();
         return toResponse(brand);
     }
 
@@ -163,10 +170,24 @@ public class BrandServiceImpl implements BrandService {
         Brand brand = getEntityByIdOrThrow(id);
 
         brand.deactivate();
-
+        productCacheService.evictAllProductDetail();
+        productCacheService.evictProductSearch();
         return toResponse(brand);
     }
 
+    @Override
+    public Map<Long, String> findNamesByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Map.of();
+        }
+        return brandRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Brand::getId, Brand::getName));
+    }
+
+    @Override
+    public Brand getById(Long id){
+        return getEntityByIdOrThrow(id);
+    }
     /**
      * Lấy Brand Entity từ database.
      *

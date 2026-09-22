@@ -31,7 +31,8 @@ public enum ErrorCode {
     INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "Định dạng file không được hỗ trợ"),
     INVALID_OBJECT_KEY(HttpStatus.BAD_REQUEST, "Đường dẫn file không hợp lệ"),
     STORAGE_OBJECT_NOT_FOUND(HttpStatus.NOT_FOUND, "File chưa được upload hoặc đã hết hạn"),
-    STORAGE_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Không thể xử lý file lúc này, vui lòng thử lại");
+    STORAGE_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Không thể xử lý file lúc này, vui lòng thử lại"),
+    INVALID_IMAGE_ORDER(HttpStatus.BAD_REQUEST,"Thứ tự hình ảnh không hợp lệ");
 
     private final HttpStatus httpStatus;
     private final String defaultMessage;

@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 "/auth/verify-email",
                                 "/auth/resend-verification-email"
                         ).permitAll()
-
+                        .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
 

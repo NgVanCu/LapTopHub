@@ -16,6 +16,7 @@ public class LogoutServiceImpl implements LogoutService {
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
+    @Override
     @Transactional
     public void logout(Long userId, RevokeReason reason) {
         refreshTokenRepository.revokeActiveByUserId(userId, Instant.now(), reason);

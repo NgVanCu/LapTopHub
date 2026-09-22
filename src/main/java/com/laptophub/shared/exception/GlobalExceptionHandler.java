@@ -41,6 +41,7 @@ public class GlobalExceptionHandler {
     ) {
         return buildResponse(
                 exception.getErrorCode(),
+                exception.getMessage(),
                 request
         );
     }
@@ -347,6 +348,24 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 LocalDateTime.now(),
                 errors
+        );
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(response);
+    }
+    private ResponseEntity<ErrorResponse> buildResponse(
+            ErrorCode errorCode,
+            String message,
+            HttpServletRequest request
+    ) {
+
+        ErrorResponse response = new ErrorResponse(
+                errorCode.getHttpStatus().value(),
+                message,
+                request.getRequestURI(),
+                LocalDateTime.now(),
+                Collections.emptyList()
         );
 
         return ResponseEntity

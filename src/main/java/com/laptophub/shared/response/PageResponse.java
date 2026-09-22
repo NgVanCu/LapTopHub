@@ -1,6 +1,8 @@
 package com.laptophub.shared.response;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
@@ -16,7 +18,14 @@ public class PageResponse<T> {
     private final int totalPages;
     private final boolean last;
 
-    private PageResponse(List<T> content, int page, int size, long totalElements, int totalPages, boolean last) {
+    @JsonCreator
+    public PageResponse(
+            @JsonProperty("content") List<T> content,
+            @JsonProperty("page") int page,
+            @JsonProperty("size") int size,
+            @JsonProperty("totalElements") long totalElements,
+            @JsonProperty("totalPages") int totalPages,
+            @JsonProperty("last") boolean last) {
         this.content = content;
         this.page = page;
         this.size = size;

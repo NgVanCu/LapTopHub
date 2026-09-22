@@ -14,6 +14,7 @@ import java.util.Objects;
 @Table(name = "product_spec_values")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+//lưu giá trị thực tế của từng thông số đối với một sản phẩm cụ thể
 public class ProductSpecValue extends BaseEntity {
     @Column(name = "product_id", nullable = false)
     private Long productId;

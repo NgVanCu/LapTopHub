@@ -12,6 +12,7 @@ import com.laptophub.storage.service.ImageStorageService;
 import com.laptophub.storage.service.StorageService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -53,6 +54,16 @@ public class ImageStorageServiceImpl implements ImageStorageService {
                 request.contentType(),
                 maxBytes
         );
+    }
+
+    @Override
+    public List<PresignedUploadForm> requestUploads(
+            ImagePurpose purpose,
+            List<PresignRequest> requests
+    ) {
+        return requests.stream()
+                .map(request -> requestUpload(purpose, request))
+                .toList();
     }
 
     @Override
@@ -102,7 +113,8 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
     private void validateTemporaryKey(ImagePurpose purpose, String objectKey) {
 
-        String expectedPrefix = purpose.path();
+        String expectedPrefix =
+                purpose.path() + "/tmp/";
 
         if (!objectKey.startsWith(expectedPrefix)) {
 
