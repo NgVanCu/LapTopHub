@@ -19,4 +19,6 @@ public interface ProductVariantService {
     ProductVariant activate(Long productId, Long variantId);
 
     ProductVariant deactivate(Long productId, Long variantId);
+
+    ProductVariant getByIdOrThrow(Long variantId);
 }

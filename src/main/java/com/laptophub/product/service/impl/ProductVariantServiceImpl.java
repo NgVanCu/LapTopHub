@@ -86,4 +86,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         productCacheService.evictProductSearch();
         return variant;
     }
+
+    @Override
+    public ProductVariant getByIdOrThrow(Long variantId) {
+        return productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+    }
 }
