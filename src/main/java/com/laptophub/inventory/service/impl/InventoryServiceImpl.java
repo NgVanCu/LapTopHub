@@ -42,14 +42,12 @@ public class InventoryServiceImpl implements InventoryService {
         productVariantService.getByIdOrThrow(productVariantId);
         return inventoryMovementRepository.findByProductVariantIdAndOptionalType(productVariantId, type, pageable);
     }
-    // Dùng bởi dashboard module (Giai đoạn 9) — danh sách toàn bộ variant có
-    // available <= threshold, sắp cạn nhất trước.
+
     @Override
     public Page<InventoryBalance> listLowStock(int threshold, Pageable pageable) {
         return inventoryBalanceRepository.findLowStock(threshold, pageable);
     }
 
-    // Gọi bởi StockReceiptService.confirm cho từng dòng phiếu nhập.
     @Override
     @Transactional
     public InventoryBalance receiveStock(Long productVariantId, int quantity, String referenceType,
@@ -59,7 +57,6 @@ public class InventoryServiceImpl implements InventoryService {
                 referenceId, null, actingUserId);
     }
 
-    // Sẵn sàng cho Giai đoạn 6 (trả hàng tốt), chưa có caller.
     @Override
     @Transactional
     public InventoryBalance receiveReturn(Long productVariantId, int quantity, String referenceType,
@@ -84,7 +81,6 @@ public class InventoryServiceImpl implements InventoryService {
         return applyOnHandChange(productVariantId, delta, type, null, null, reason, actingUserId);
     }
 
-    // Sẵn sàng cho Giai đoạn 5 (Cart/Checkout), chưa có caller.
     @Override
     @Transactional
     public InventoryBalance reserve(Long productVariantId, int quantity, String referenceType, Long referenceId) {
@@ -98,7 +94,6 @@ public class InventoryServiceImpl implements InventoryService {
         return after;
     }
 
-    // Sẵn sàng cho Giai đoạn 5/6 (hủy đơn), chưa có caller.
     @Transactional
     public InventoryBalance release(Long productVariantId, int quantity, String referenceType, Long referenceId) {
         productVariantService.getByIdOrThrow(productVariantId);
@@ -110,8 +105,6 @@ public class InventoryServiceImpl implements InventoryService {
         recordMovement(after, InventoryMovementType.RELEASE, quantity, referenceType, referenceId, null, null);
         return after;
     }
-
-    // Sẵn sàng cho Giai đoạn 6 (xuất đơn), chưa có caller.
     @Override
     @Transactional
     public InventoryBalance fulfill(Long productVariantId, int quantity, String referenceType, Long referenceId) {

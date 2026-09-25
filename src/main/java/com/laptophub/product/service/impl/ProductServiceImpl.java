@@ -22,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -105,6 +107,12 @@ public class ProductServiceImpl implements ProductService {
         productCacheService.evictProductDetail(product.getSlug());
         productCacheService.evictProductSearch();
         return product;
+    }
+
+    @Override
+    public Map<Long, Product> findByIds(List<Long> ids) {
+        return productRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
     }
 
     private Category requireActiveCategory(Long categoryId) {

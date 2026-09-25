@@ -7,6 +7,7 @@ import com.laptophub.product.dto.response.ProductImageResponse;
 import com.laptophub.product.entity.ProductImage;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductImageService {
     ProductImageResponse addImage(Long productId, ProductImageCreateRequest request);
@@ -26,4 +27,5 @@ public interface ProductImageService {
             Long productId,
             ProductImageReorderRequest request
     );
+    Map<Long, String> findThumbnailUrlsByProductIds(List<Long> productIds);
 }

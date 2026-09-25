@@ -1,6 +1,7 @@
 package com.laptophub.product.service.impl;
 
 
+import com.laptophub.product.dto.projection.ProductThumbnail;
 import com.laptophub.product.dto.request.ProductImageCreateRequest;
 import com.laptophub.product.dto.request.ProductImageReorderRequest;
 import com.laptophub.product.dto.request.ProductImagesCreateRequest;
@@ -215,6 +216,25 @@ public class ProductImageServiceImpl implements ProductImageService {
         normalizeSortOrder(productId);
         productCacheService.evictProductDetail(product.getSlug());
         productCacheService.evictProductSearch();
+    }
+
+    @Override
+    public Map<Long, String> findThumbnailUrlsByProductIds(List<Long> productIds) {
+
+        if (productIds == null || productIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return productImageRepository
+                .findThumbnailsByProductIds(productIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        ProductThumbnail::getProductId,
+                        thumbnail -> imageStorageService.generateDownloadUrl(
+                                thumbnail.getObjectKey()
+                        ),
+                        (first, second) -> first
+                ));
     }
 
     private ProductImageResponse toResponse(ProductImage productImage) {

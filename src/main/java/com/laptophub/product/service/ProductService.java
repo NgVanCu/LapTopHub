@@ -8,6 +8,9 @@ import com.laptophub.product.enums.ProductStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+import java.util.Map;
+
 public interface ProductService {
     Product create(ProductCreateRequest request);
 
@@ -21,4 +24,5 @@ public interface ProductService {
 
     Product deactivate(Long id);
 
+    Map<Long, Product> findByIds(List<Long> ids);
 }
