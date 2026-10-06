@@ -5,6 +5,7 @@ import com.laptophub.product.dto.request.ProductVariantUpdateRequest;
 import com.laptophub.product.entity.ProductVariant;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductVariantService {
 
@@ -21,4 +22,8 @@ public interface ProductVariantService {
     ProductVariant deactivate(Long productId, Long variantId);
 
     ProductVariant getByIdOrThrow(Long variantId);
+
+    Map<Long, Long> findProductIdsByVariantIds(List<Long> variantIds);
+
+    Map<Long, ProductVariant> findByIds(List<Long> variantIds);
 }

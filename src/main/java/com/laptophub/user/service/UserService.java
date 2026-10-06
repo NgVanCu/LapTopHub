@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
@@ -32,4 +34,12 @@ public interface UserService {
     User activateUser(Long targetUserId);
 
     User createAdmin(String normalizedEmail, String passwordHash, String fullName);
+
+    Map<Long, String> findFullNamesByIds(List<Long> ids);
+
+    long countCustomers();
+
+    long countCustomersByStatus(UserStatus status);
+
+    long countNewCustomers(Instant from, Instant to);
 }

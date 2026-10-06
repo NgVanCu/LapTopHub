@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Repository
@@ -38,4 +39,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Page<User> search(UserRole role, UserStatus status, String keyword, Pageable pageable);
 
     boolean existsByRole(UserRole role);
+
+    long countByRole(UserRole role);
+
+    long countByRoleAndStatus(UserRole role, UserStatus status);
+
+    long countByRoleAndCreatedAtBetween(UserRole role, Instant from, Instant to);
 }

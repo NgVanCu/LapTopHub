@@ -94,6 +94,7 @@ public class InventoryServiceImpl implements InventoryService {
         return after;
     }
 
+    @Override
     @Transactional
     public InventoryBalance release(Long productVariantId, int quantity, String referenceType, Long referenceId) {
         productVariantService.getByIdOrThrow(productVariantId);

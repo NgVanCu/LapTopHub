@@ -81,6 +81,14 @@ jwt:
   access-token-expiration: ${JWT_ACCESS_EXPIRATION:15m}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:30d}
 
+vnpay:
+  tmn-code: ${VNPAY_TMN_CODE}
+  hash-secret: ${VNPAY_HASH_SECRET}
+
+  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+
+  return-url: ${VNPAY_RETURN_URL}
+  ipn-url: ${VNPAY_IPN_URL}
 logging:
   level:
     com.laptophub: DEBUG

@@ -59,7 +59,7 @@ public class LoginServiceImpl implements LoginService {
         refreshTokenRepository.save(
                 RefreshToken.create(principal.getId(), hashRefreshToken, familyId, refreshExpiresAt, Instant.now()));
         LoginResult loginResult = LoginResult.from(accessToken, "Bearer", expiresInSeconds);
-        return  new LoginResponse(loginResult, rawRefreshToken);
+        return new LoginResponse(loginResult, rawRefreshToken);
     }
 
     private UserPrincipal authenticate(LoginRequest request) {

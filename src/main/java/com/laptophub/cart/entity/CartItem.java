@@ -26,8 +26,8 @@ public class CartItem extends BaseEntity {
     private Integer quantity;
 
     private CartItem(Long cartId, Long productVariantId, int quantity) {
-        this.cartId = Objects.requireNonNull(cartId, "cartId must not be null");
-        this.productVariantId = Objects.requireNonNull(productVariantId, "productVariantId must not be null");
+        this.cartId = Objects.requireNonNull(cartId, "cartId không được để trống");
+        this.productVariantId = Objects.requireNonNull(productVariantId, "productVariantId không được để trống");
         requirePositive(quantity);
         this.quantity = quantity;
     }

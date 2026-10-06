@@ -14,8 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -113,5 +116,26 @@ public class UserServiceImpl implements UserService {
     public User createAdmin(String normalizedEmail, String passwordHash, String fullName) {
         User user = User.create(normalizedEmail, passwordHash, fullName, null, UserRole.ADMIN);
         return userRepository.saveAndFlush(user);
+    }
+
+    @Override
+    public Map<Long, String> findFullNamesByIds(List<Long> ids) {
+        return userRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(User::getId, User::getFullName));
+    }
+
+    @Override
+    public long countCustomers() {
+        return userRepository.countByRole(UserRole.CUSTOMER);
+    }
+
+    @Override
+    public long countCustomersByStatus(UserStatus status) {
+        return userRepository.countByRoleAndStatus(UserRole.CUSTOMER, status);
+    }
+
+    @Override
+    public long countNewCustomers(Instant from, Instant to) {
+        return userRepository.countByRoleAndCreatedAtBetween(UserRole.CUSTOMER, from, to);
     }
 }

@@ -20,7 +20,7 @@ public class Cart extends BaseEntity {
     private Long userId;
 
     private Cart(Long userId) {
-        this.userId = Objects.requireNonNull(userId, "userId must not be null");
+        this.userId = Objects.requireNonNull(userId, "userId không được để trống");
     }
 
     public static Cart create(Long userId) {

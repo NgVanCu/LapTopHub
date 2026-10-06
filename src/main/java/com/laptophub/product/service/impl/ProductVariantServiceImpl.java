@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductVariantServiceImpl implements ProductVariantService {
@@ -91,5 +93,17 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     public ProductVariant getByIdOrThrow(Long variantId) {
         return productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+    }
+
+    @Override
+    public Map<Long, Long> findProductIdsByVariantIds(List<Long> variantIds) {
+        return productVariantRepository.findAllById(variantIds).stream()
+                .collect(Collectors.toMap(ProductVariant::getId, ProductVariant::getProductId));
+    }
+
+    @Override
+    public Map<Long, ProductVariant> findByIds(List<Long> variantIds) {
+        return productVariantRepository.findAllById(variantIds).stream()
+                .collect(Collectors.toMap(ProductVariant::getId, v -> v));
     }
 }
